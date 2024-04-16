@@ -37,6 +37,19 @@ button:hover {
   background-color: #ffc14d;
 }
 
+nav button {
+  background-color: #ffcc70;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+nav button:disabled {
+  background-color: #e0b750;
+  cursor: default;
+}
 
 
 
