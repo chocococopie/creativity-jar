@@ -1,7 +1,9 @@
+// src/App.jsx
 import React, { useState, useEffect } from "react";
 import prompts from "./data/prompts";
 import PromptCard from "./components/PromptCard";
 import Favorites from "./components/Favorites";
+import { AnimatePresence, motion } from "framer-motion";
 import "./App.css";
 
 const App = () => {
@@ -11,7 +13,6 @@ const App = () => {
     return prompts[Math.floor(Math.random() * prompts.length)];
   };
 
-  // Daily prompt state and logic (same as before)
   const [prompt, setPrompt] = useState(() => {
     const saved = localStorage.getItem("dailyPrompt");
     const today = new Date().toDateString();
@@ -77,12 +78,22 @@ const App = () => {
       <hr />
 
       {page === "daily" && (
-        <PromptCard
-          prompt={prompt}
-          onNext={handleNewPrompt}
-          onFavorite={() => addFavorite(prompt)}
-          isFavorited={favorites.includes(prompt)}
-        />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={prompt} // important so motion detects changes
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <PromptCard
+              prompt={prompt}
+              onNext={handleNewPrompt}
+              onFavorite={() => addFavorite(prompt)}
+              isFavorited={favorites.includes(prompt)}
+            />
+          </motion.div>
+        </AnimatePresence>
       )}
 
       {page === "favorites" && (
