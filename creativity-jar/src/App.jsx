@@ -1,17 +1,30 @@
-// src/App.jsx
 import React, { useState, useEffect } from "react";
 import prompts from "./data/prompts";
-import PromptCard from "./components/PromptCard";
 import Favorites from "./components/Favorites";
 import { AnimatePresence, motion } from "framer-motion";
 import "./App.css";
 
-const App = () => {
-  const [page, setPage] = useState("daily"); // 'daily' or 'favorites'
+const JarNote = ({ prompt, onDraw }) => {
+  return (
+    <motion.div
+      className="jar-note"
+      initial={{ y: 100, opacity: 0, rotate: 10 }}
+      animate={{ y: 0, opacity: 1, rotate: 0 }}
+      exit={{ y: -100, opacity: 0, rotate: -10 }}
+      transition={{ type: "spring", stiffness: 120, damping: 15 }}
+    >
+      <p>{prompt}</p>
+      <button className="draw-button" onClick={onDraw}>
+        Draw Another Note
+      </button>
+    </motion.div>
+  );
+};
 
-  const getRandomPrompt = () => {
-    return prompts[Math.floor(Math.random() * prompts.length)];
-  };
+const App = () => {
+  const [page, setPage] = useState("daily");
+  const getRandomPrompt = () =>
+    prompts[Math.floor(Math.random() * prompts.length)];
 
   const [prompt, setPrompt] = useState(() => {
     const saved = localStorage.getItem("dailyPrompt");
@@ -33,7 +46,7 @@ const App = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const handleNewPrompt = () => {
+  const handleDraw = () => {
     const newPrompt = getRandomPrompt();
     setPrompt(newPrompt);
     localStorage.setItem(
@@ -43,7 +56,7 @@ const App = () => {
   };
 
   const addFavorite = (newFav) => {
-    if (favorites.includes(newFav)) return; // avoid duplicates
+    if (favorites.includes(newFav)) return;
     const updated = [...favorites, newFav];
     setFavorites(updated);
     localStorage.setItem("favorites", JSON.stringify(updated));
@@ -58,7 +71,6 @@ const App = () => {
   return (
     <div className="app">
       <h1>Creativity Jar 🧠</h1>
-
       <nav>
         <button
           onClick={() => setPage("daily")}
@@ -78,22 +90,30 @@ const App = () => {
       <hr />
 
       {page === "daily" && (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={prompt} // important so motion detects changes
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <PromptCard
+        <div className="jar-container">
+          <AnimatePresence mode="wait">
+            <JarNote
+              key={prompt}
               prompt={prompt}
-              onNext={handleNewPrompt}
+              onDraw={handleDraw}
               onFavorite={() => addFavorite(prompt)}
-              isFavorited={favorites.includes(prompt)}
             />
-          </motion.div>
-        </AnimatePresence>
+          </AnimatePresence>
+          <button
+            className="favorite-btn"
+            onClick={() => addFavorite(prompt)}
+            disabled={favorites.includes(prompt)}
+            title={
+              favorites.includes(prompt)
+                ? "Already in favorites"
+                : "Save to favorites"
+            }
+          >
+            {favorites.includes(prompt)
+              ? "Saved to Favorites"
+              : "Save to Favorites"}
+          </button>
+        </div>
       )}
 
       {page === "favorites" && (
